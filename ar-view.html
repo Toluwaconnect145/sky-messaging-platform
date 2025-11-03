@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Sky Messages View</title>
+    <title>AR Sky Messages - See Messages in Real Sky</title>
     <style>
         body {
             margin: 0;
@@ -9,110 +9,210 @@
             background: black;
             color: white;
             font-family: Arial;
+            overflow: hidden;
         }
-        .container {
-            position: relative;
+        
+        #cameraContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100vw;
             height: 100vh;
+            z-index: 1;
         }
+        
         #cameraView {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+        
         .sky-message {
             position: absolute;
-            background: rgba(255,255,255,0.9);
-            color: #333;
-            padding: 15px;
-            border-radius: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 25px;
             font-size: 18px;
+            font-weight: bold;
             max-width: 200px;
             text-align: center;
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
-            animation: float 3s ease-in-out infinite;
+            z-index: 2;
+            box-shadow: 0 0 30px rgba(255,255,255,0.7);
+            animation: floatInSky 6s ease-in-out infinite;
+            border: 2px solid white;
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        
+        @keyframes floatInSky {
+            0%, 100% { 
+                transform: translateY(0px) translateX(0px); 
+            }
+            25% { 
+                transform: translateY(-20px) translateX(10px); 
+            }
+            50% { 
+                transform: translateY(-40px) translateX(-5px); 
+            }
+            75% { 
+                transform: translateY(-20px) translateX(5px); 
+            }
         }
+        
         .controls {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
             left: 0;
             right: 0;
             text-align: center;
+            z-index: 3;
         }
+        
         button {
-            background: #ff6b6b;
-            color: white;
-            padding: 15px 30px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            padding: 15px 25px;
             border: none;
             border-radius: 10px;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
-            margin: 0 10px;
+            margin: 0 5px;
+            font-weight: bold;
+        }
+        
+        .exit-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: red;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            z-index: 4;
+            font-size: 20px;
+            width: 50px;
+            height: 50px;
+        }
+        
+        .instruction {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            z-index: 3;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Camera feed will go here -->
-        <div id="cameraContainer">
-            <video id="cameraView" autoplay playsinline></video>
-        </div>
-        
-        <!-- Messages will float here -->
-        <div id="skyMessages">
-            <div class="sky-message" style="top: 20%; left: 20%;">Hello Sky! ✨</div>
-            <div class="sky-message" style="top: 40%; left: 70%;">UV Protection 🌞</div>
-            <div class="sky-message" style="top: 60%; left: 30%;">Message from Toluwa 🚀</div>
-        </div>
-        
-        <div class="controls">
-            <button onclick="startCamera()">Start AR Camera</button>
-            <button onclick="addMessage()">Add Message to Sky</button>
-            <button onclick="goBack()">Back to Main</button>
-        </div>
+    <!-- Exit Button -->
+    <button class="exit-btn" onclick="exitAR()">✕</button>
+    
+    <div class="instruction">
+        <h2>🔭 Point Your Camera at the Sky! 🌤️</h2>
+        <p>Messages will appear floating in the real sky through your camera</p>
+    </div>
+    
+    <div id="cameraContainer">
+        <video id="cameraView" autoplay playsinline></video>
+    </div>
+    
+    <div id="skyMessages">
+        <!-- Messages will appear here floating in sky -->
+    </div>
+    
+    <div class="controls">
+        <button onclick="addMessageToSky()">✉️ Add Message to Sky</button>
+        <button onclick="startCamera()">📷 Restart Camera</button>
+        <button onclick="exitAR()">🚪 Exit AR View</button>
     </div>
 
     <script>
-        // Get camera access
+        let messageCount = 0;
+        let cameraStream = null;
+        
+        // Start camera and place messages in sky
         async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } // Use back camera
+                });
+                cameraStream = stream;
                 document.getElementById('cameraView').srcObject = stream;
+                
+                // Add some initial sky messages
+                setTimeout(() => {
+                    addSkyMessage("Hello from Sky! 🌤️");
+                    addSkyMessage("UV Protection Active! ☀️");
+                    addSkyMessage("Message in the Sky! ✨");
+                }, 1000);
+                
             } catch (err) {
-                alert('Camera access needed for AR view. Please allow camera permissions.');
+                alert('📱 Camera access needed for AR sky view! Please allow camera permissions and point at the sky.');
+                // Add fallback messages
+                addSkyMessage("Enable camera for AR sky view!");
+                addSkyMessage("Point at real sky to see messages!");
             }
         }
-
-        // Add floating message to sky
-        function addMessage() {
+        
+        // Add message floating in sky
+        function addSkyMessage(text) {
+            const skyMessages = document.getElementById('skyMessages');
+            const newMessage = document.createElement('div');
+            newMessage.className = 'sky-message';
+            newMessage.textContent = text;
+            newMessage.id = 'msg' + messageCount++;
+            
+            // Random position in the sky (top part of screen)
+            const left = Math.random() * 70 + 15; // 15-85%
+            const top = Math.random() * 40 + 10;  // 10-50% (sky area)
+            
+            newMessage.style.left = left + '%';
+            newMessage.style.top = top + '%';
+            
+            // Random animation delay
+            newMessage.style.animationDelay = (Math.random() * 2) + 's';
+            
+            skyMessages.appendChild(newMessage);
+            
+            // Remove message after 30 seconds
+            setTimeout(() => {
+                if (newMessage.parentNode) {
+                    newMessage.parentNode.removeChild(newMessage);
+                }
+            }, 30000);
+        }
+        
+        // Add new message via prompt
+        function addMessageToSky() {
             const message = prompt('Enter your sky message:');
             if (message) {
-                const skyMessages = document.getElementById('skyMessages');
-                const newMessage = document.createElement('div');
-                newMessage.className = 'sky-message';
-                newMessage.textContent = message;
-                
-                // Random position in sky
-                const left = Math.random() * 70 + 10; // 10-80%
-                const top = Math.random() * 70 + 10;  // 10-80%
-                
-                newMessage.style.left = left + '%';
-                newMessage.style.top = top + '%';
-                
-                skyMessages.appendChild(newMessage);
+                addSkyMessage(message);
             }
         }
-
-        function goBack() {
+        
+        // Exit AR view properly
+        function exitAR() {
+            // Stop camera stream
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Go back to main page
             window.location.href = 'index.html';
         }
-
-        // Start camera automatically
+        
+        // Handle back button
+        function goBack() {
+            exitAR();
+        }
+        
+        // Start when page loads
         window.onload = startCamera;
+        
+        // Also exit when phone back button is pressed
+        document.addEventListener('backbutton', exitAR, false);
     </script>
 </body>
 </html>

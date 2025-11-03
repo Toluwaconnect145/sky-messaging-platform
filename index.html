@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sky Messages Platform</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .message-form {
+            background: rgba(255,255,255,0.2);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .messages {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Sky Messages Platform ✨</h1>
+        <p>UV Protection & Sky Messaging for Africa</p>
+        
+        <div class="message-form">
+            <h2>Send Message to Sky</h2>
+            <input type="text" id="name" placeholder="Your name">
+            <textarea id="message" placeholder="Your message for the sky..." rows="4"></textarea>
+            <button onclick="sendMessage()">Send to Sky 🌤️</button>
+        </div>
+        
+        <div class="messages">
+            <h3>Sky Messages:</h3>
+            <div id="messageList">
+                <div>Welcome! Send your first sky message! 🚀</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            
+            if(name && message) {
+                const messageList = document.getElementById('messageList');
+                const newMsg = document.createElement('div');
+                newMsg.style.background = 'rgba(255,255,255,0.2)';
+                newMsg.style.padding = '15px';
+                newMsg.style.margin = '10px 0';
+                newMsg.style.borderRadius = '8px';
+                newMsg.innerHTML = `<strong>${name}:</strong> ${message}`;
+                
+                messageList.appendChild(newMsg);
+                
+                // Clear form
+                document.getElementById('name').value = '';
+                document.getElementById('message').value = '';
+                
+                alert('Message sent to the sky! 🌤️');
+            } else {
+                alert('Please enter both name and message!');
+            }
+        }
+    </script>
+</body>
+</html>
